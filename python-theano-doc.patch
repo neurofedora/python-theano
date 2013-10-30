@@ -1,0 +1,49 @@
+--- ./MANIFEST.in.orig	2013-02-14 08:52:51.000000000 -0700
++++ ./MANIFEST.in	2013-07-16 11:43:02.508559835 -0600
+@@ -2,7 +2,7 @@ global-include *.txt
+ global-include *.cu
+ global-include *.cuh
+ global-include *.sh
+-recursive-include docs
++recursive-include docs *
+ include bin/theano-cache
+ include bin/theano-nose
+ include bin/theano-test
+--- ./doc/NEWS.txt.orig	2013-02-14 08:52:51.000000000 -0700
++++ ./doc/NEWS.txt	2013-07-16 11:43:02.508559835 -0600
+@@ -337,8 +337,7 @@ Speed up:
+  * Faster rng_mrg Python code. (mostly used for tests) (Frederic B.)
+ 
+ Speed up GPU:
+- * Convolution on the GPU now checks the generation of the card to make
+-   it faster in some cases (especially medium/big ouput image) (Frederic B.)
++ * Convolution on the GPU now checks the generation of the card to make it faster in some cases (especially medium/big ouput image) (Frederic B.)
+      * We had hardcoded 512 as the maximum number of threads per block. Newer cards
+        support up to 1024 threads per block.
+  * Faster GpuAdvancedSubtensor1, GpuSubtensor, GpuAlloc (Frederic B.)
+--- ./doc/tutorial/using_gpu.txt.orig	2013-02-14 08:52:55.000000000 -0700
++++ ./doc/tutorial/using_gpu.txt	2013-07-16 11:43:02.509559834 -0600
+@@ -562,7 +562,7 @@ Modify and execute to work for a matrix
+ -------------------------------------------
+ 
+ 
+-.. _pyCUDA_theano:
++.. _pyCUDA_theano_example:
+ 
+ **Example: Theano + PyCUDA**
+ 
+--- ./theano/sandbox/cuda/basic_ops.py.orig	2013-02-14 08:52:55.000000000 -0700
++++ ./theano/sandbox/cuda/basic_ops.py	2013-07-16 11:44:32.819511698 -0600
+@@ -1127,8 +1127,10 @@ class GpuCAReduce(GpuOp):
+ 
+     def c_code_reduce_01X(self, sio, node, name, x, z, fail, N):
+         """
+-        :param N: the number of 1 in the pattern N=1 -> 01, N=2 -> 011 N=3 ->0111
+-                  Work for N=1,2,3
++        :param N: the number of 1s in the pattern N=1 -> 01, N=2 -> 011,
++            N=3 ->0111.  Works for N=1,2,3
++
++        Reduce.
+         """
+ 
+         assert N in [1, 2, 3]
