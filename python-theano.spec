@@ -1,14 +1,14 @@
 %global pkgname Theano
-%global rctag rc3
+#%%global rctag rc3
 
 Name:           python-theano
 Version:        0.6.0
-Release:        0.1%{?rctag:.%{rctag}}%{?dist}
+Release:        1%{?rctag:.%{rctag}}%{?dist}
 Summary:        Mathematical expressions involving multidimensional arrays
 
 License:        BSD
 URL:            http://deeplearning.net/software/theano/
-Source0:        https://pypi.python.org/packages/source/T/%{pkgname}/%{pkgname}-%{version}%{rctag}.tar.gz
+Source0:        https://pypi.python.org/packages/source/T/%{pkgname}/%{pkgname}-%{version}%{?rctag:.%{rctag}}.tar.gz
 # Files from git that were omitted from the release
 Source1:        %{pkgname}-missing.tar.xz
 # Images used when building documentation
@@ -20,8 +20,6 @@ Source4:        badge2.png
 
 # Fix some documentation bugs
 Patch0:         %{name}-doc.patch
-# Insert a missing import
-Patch1:         %{name}-import.patch
 
 BuildArch:      noarch
 
@@ -66,10 +64,9 @@ Summary:        Theano documentation
 User documentation for Theano.
 
 %prep
-%setup -q -n %{pkgname}-%{version}%{rctag}
-%setup -q -n %{pkgname}-%{version}%{rctag} -T -D -a 1
+%setup -q -n %{pkgname}-%{version}%{?rctag:.%{rctag}}
+%setup -q -n %{pkgname}-%{version}%{?rctag:.%{rctag}} -T -D -a 1
 %patch0
-%patch1
 
 # Don't use non-local images when building documentation
 cp -p %{SOURCE2} %{SOURCE3} %{SOURCE4} doc/images
@@ -83,7 +80,7 @@ rm -fr %{pkgname}.egg-info
 
 # Remove the shebang from a non-executable Python file
 for fil in theano/sandbox/neighbourhoods.py; do
-  sed '1,2d' $fil > $fil.new
+  sed '1d' $fil > $fil.new
   touch -r $fil $fil.new
   mv -f $fil.new $fil
 done
@@ -115,8 +112,8 @@ chmod a+x $(find %{buildroot} -name \*.py -o -name \*.sh | xargs grep -l '^#!')
 # Theano's self tests currently fail one test.  Enable this once upstream has
 # fixed the problem.
 #
-# %%check
-# PYTHONPATH=$PWD bin/theano-test
+#%%check
+#PYTHONPATH=$PWD bin/theano-test
 
 %files
 %doc doc/LICENSE.txt DESCRIPTION.txt HISTORY.txt NEWS.txt README.txt
@@ -127,6 +124,10 @@ chmod a+x $(find %{buildroot} -name \*.py -o -name \*.sh | xargs grep -l '^#!')
 %doc html
 
 %changelog
+* Sat Dec  7 2013 Jerry James <loganjerry@gmail.com> - 0.6.0-1
+- New upstream release
+- Drop upstreamed -import patch
+
 * Mon Oct 21 2013 Jerry James <loganjerry@gmail.com> - 0.6.0-0.1.rc3
 - Add the -import patch to fix an exception
 - Add more files to the base package docs
