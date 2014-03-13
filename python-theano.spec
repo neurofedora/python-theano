@@ -3,7 +3,7 @@
 
 Name:           python-theano
 Version:        0.6.0
-Release:        1%{?rctag:.%{rctag}}%{?dist}
+Release:        2%{?rctag:.%{rctag}}%{?dist}
 Summary:        Mathematical expressions involving multidimensional arrays
 
 License:        BSD
@@ -20,18 +20,21 @@ Source4:        badge2.png
 
 # Fix some documentation bugs
 Patch0:         %{name}-doc.patch
+# Unbundle python-six
+Patch1:         %{name}-six.patch
 
 BuildArch:      noarch
 
 BuildRequires:  atlas-devel
 BuildRequires:  epydoc
-BuildRequires:  numpy
+BuildRequires:  numpy python3-numpy
 BuildRequires:  pydot
-BuildRequires:  python2-devel
-BuildRequires:  python-nose
-BuildRequires:  python-setuptools
+BuildRequires:  python2-devel python3-devel
+BuildRequires:  python-nose python3-nose
+BuildRequires:  python-setuptools python3-setuptools
+BuildRequires:  python-six python3-six
 BuildRequires:  python-sphinx
-BuildRequires:  scipy
+BuildRequires:  scipy python3-scipy
 BuildRequires:  tex-dvipng
 
 Requires:       atlas-devel
@@ -39,6 +42,7 @@ Requires:       gcc-c++
 Requires:       gcc-gfortran
 Requires:       numpy
 Requires:       pydot
+Requires:       python-six
 Requires:       scipy
 
 %description
@@ -63,10 +67,36 @@ Summary:        Theano documentation
 %description doc
 User documentation for Theano.
 
+%package -n python3-theano
+Summary:        Mathematical expressions involving multidimensional arrays
+Requires:       atlas-devel
+Requires:       gcc-c++
+Requires:       gcc-gfortran
+Requires:       python3-numpy
+Requires:       python3-scipy
+Requires:       python3-six
+
+%description -n python3-theano
+Theano is a Python library that allows you to define, optimize, and
+evaluate mathematical expressions involving multi-dimensional arrays
+efficiently.  Theano features:
+- tight integration with NumPy: Use numpy.ndarray in Theano-compiled
+  functions.
+- transparent use of a GPU: Perform data-intensive calculations up to
+  140x faster than with CPU.(float32 only)
+- efficient symbolic differentiation: Theano does your derivatives for
+  function with one or many inputs.
+- speed and stability optimizations: Get the right answer for log(1+x)
+  even when x is really tiny.
+- dynamic C code generation: Evaluate expressions faster.
+- extensive unit-testing and self-verification: Detect and diagnose many
+  types of mistake.
+
 %prep
 %setup -q -n %{pkgname}-%{version}%{?rctag:.%{rctag}}
 %setup -q -n %{pkgname}-%{version}%{?rctag:.%{rctag}} -T -D -a 1
 %patch0
+%patch1
 
 # Don't use non-local images when building documentation
 cp -p %{SOURCE2} %{SOURCE3} %{SOURCE4} doc/images
@@ -78,6 +108,9 @@ sed -e 's,https://.*/Theano\.png?branch=master,images/Theano.png,' \
 # Remove the packaged egg
 rm -fr %{pkgname}.egg-info
 
+# Remove bundled python-six
+rm -f theano/compat/six.py
+
 # Remove the shebang from a non-executable Python file
 for fil in theano/sandbox/neighbourhoods.py; do
   sed '1d' $fil > $fil.new
@@ -85,26 +118,60 @@ for fil in theano/sandbox/neighbourhoods.py; do
   mv -f $fil.new $fil
 done
 
+# Prepare for python 3 build
+cp -a . %{py3dir}
+
 # We don't need to use /usr/bin/env
 for fil in $(grep -FRl /usr/bin/env .); do
-  sed 's,/usr/bin/env[[:blank:]]*python.*,/usr/bin/python,' $fil > $fil.new
+  sed 's,/usr/bin/env[[:blank:]]*python.*,/usr/bin/python2,' $fil > $fil.new
+  touch -r $fil $fil.new
+  chmod a+x $fil.new
+  mv -f $fil.new $fil
+done
+for fil in $(grep -FRl /usr/bin/env %{py3dir}); do
+  sed 's,/usr/bin/env[[:blank:]]*python.*,/usr/bin/python3,' $fil > $fil.new
   touch -r $fil $fil.new
   chmod a+x $fil.new
   mv -f $fil.new $fil
 done
 
+# Part 1 of workaround for bz 1075826.  Remove this when that bug is resolved.
+mkdir html
+cp -p doc/images/theano_logo_allblue_200x46.png html
+
 %build
-python setup.py build
+# The python3 build fails with Unicode errors without this
+export LC_ALL=en_US.UTF-8
+
+# Python 2 build
+python2 setup.py build
+
+# Python 3 build
+pushd %{py3dir}
+python3 setup.py build
+popd
 
 # Build the documentation
 export PYTHONPATH=$PWD
-python doc/scripts/docgen.py --nopdf
+python2 doc/scripts/docgen.py --nopdf
 
 # Remove build artifacts
 rm -fr html/.buildinfo html/.doctrees
 
+# Part 2 of workaround for bz 1075826.  Remove this when that bug is resolved.
+rm -f html/theano_logo_allblue_200x46.png
+
 %install
-python setup.py install -O1 --skip-build --root %{buildroot}
+# The python3 installation fails with Unicode errors without this
+export LC_ALL=en_US.UTF-8
+
+# Install python 2 build
+python2 setup.py install -O1 --skip-build --root %{buildroot}
+
+# Install python 3 build
+pushd %{py3dir}
+python3 setup.py install -O1 --skip-build --root %{buildroot}
+popd
 
 # Restore executable permission on the scripts
 chmod a+x $(find %{buildroot} -name \*.py -o -name \*.sh | xargs grep -l '^#!')
@@ -117,13 +184,24 @@ chmod a+x $(find %{buildroot} -name \*.py -o -name \*.sh | xargs grep -l '^#!')
 
 %files
 %doc doc/LICENSE.txt DESCRIPTION.txt HISTORY.txt NEWS.txt README.txt
-%{_bindir}/theano-*
-%{python_sitelib}/*
+%{python2_sitelib}/*
 
 %files doc
 %doc html
 
+%files -n python3-theano
+%doc doc/LICENSE.txt DESCRIPTION.txt HISTORY.txt NEWS.txt README.txt
+%{_bindir}/theano-*
+%{python3_sitelib}/*
+
 %changelog
+* Thu Mar 13 2014 Jerry James <loganjerry@gmail.com> - 0.6.0-2
+- Add python3 subpackage
+- Add another icon to the -missing tarball
+- Update source icons
+- Unbundle python-six
+- Add workaround for bz 1075826
+
 * Sat Dec  7 2013 Jerry James <loganjerry@gmail.com> - 0.6.0-1
 - New upstream release
 - Drop upstreamed -import patch
