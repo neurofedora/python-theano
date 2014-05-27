@@ -3,7 +3,7 @@
 
 Name:           python-theano
 Version:        0.6.0
-Release:        2%{?rctag:.%{rctag}}%{?dist}
+Release:        3%{?rctag:.%{rctag}}%{?dist}
 Summary:        Mathematical expressions involving multidimensional arrays
 
 License:        BSD
@@ -195,6 +195,9 @@ chmod a+x $(find %{buildroot} -name \*.py -o -name \*.sh | xargs grep -l '^#!')
 %{python3_sitelib}/*
 
 %changelog
+* Wed May 14 2014 Jerry James <loganjerry@gmail.com> - 0.6.0-3
+- Rebuild for https://fedoraproject.org/wiki/Changes/Python_3.4
+
 * Thu Mar 13 2014 Jerry James <loganjerry@gmail.com> - 0.6.0-2
 - Add python3 subpackage
 - Add another icon to the -missing tarball
