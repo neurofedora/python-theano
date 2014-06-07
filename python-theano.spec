@@ -3,7 +3,7 @@
 
 Name:           python-theano
 Version:        0.6.0
-Release:        3%{?rctag:.%{rctag}}%{?dist}
+Release:        3%{?rctag:.%{rctag}}%{?dist}.1
 Summary:        Mathematical expressions involving multidimensional arrays
 
 License:        BSD
@@ -195,6 +195,9 @@ chmod a+x $(find %{buildroot} -name \*.py -o -name \*.sh | xargs grep -l '^#!')
 %{python3_sitelib}/*
 
 %changelog
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.6.0-3.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Wed May 14 2014 Jerry James <loganjerry@gmail.com> - 0.6.0-3
 - Rebuild for https://fedoraproject.org/wiki/Changes/Python_3.4
 
