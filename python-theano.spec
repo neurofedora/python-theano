@@ -3,7 +3,7 @@
 
 Name:           python-theano
 Version:        0.6.0
-Release:        3%{?rctag:.%{rctag}}%{?dist}.1
+Release:        4%{?rctag:.%{rctag}}%{?dist}
 Summary:        Mathematical expressions involving multidimensional arrays
 
 License:        BSD
@@ -135,10 +135,6 @@ for fil in $(grep -FRl /usr/bin/env %{py3dir}); do
   mv -f $fil.new $fil
 done
 
-# Part 1 of workaround for bz 1075826.  Remove this when that bug is resolved.
-mkdir html
-cp -p doc/images/theano_logo_allblue_200x46.png html
-
 %build
 # The python3 build fails with Unicode errors without this
 export LC_ALL=en_US.UTF-8
@@ -157,9 +153,6 @@ python2 doc/scripts/docgen.py --nopdf
 
 # Remove build artifacts
 rm -fr html/.buildinfo html/.doctrees
-
-# Part 2 of workaround for bz 1075826.  Remove this when that bug is resolved.
-rm -f html/theano_logo_allblue_200x46.png
 
 %install
 # The python3 installation fails with Unicode errors without this
@@ -183,18 +176,24 @@ chmod a+x $(find %{buildroot} -name \*.py -o -name \*.sh | xargs grep -l '^#!')
 #PYTHONPATH=$PWD bin/theano-test
 
 %files
-%doc doc/LICENSE.txt DESCRIPTION.txt HISTORY.txt NEWS.txt README.txt
+%doc DESCRIPTION.txt HISTORY.txt NEWS.txt README.txt
+%license doc/LICENSE.txt
 %{python2_sitelib}/*
 
 %files doc
 %doc html
 
 %files -n python3-theano
-%doc doc/LICENSE.txt DESCRIPTION.txt HISTORY.txt NEWS.txt README.txt
+%doc DESCRIPTION.txt HISTORY.txt NEWS.txt README.txt
+%license doc/LICENSE.txt
 %{_bindir}/theano-*
 %{python3_sitelib}/*
 
 %changelog
+* Sat Feb 21 2015 Jerry James <loganjerry@gmail.com> - 0.6.0-4
+- Drop workaround for fixed bug (bz 1075826)
+- Use license macro
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.6.0-3.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
