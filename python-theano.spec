@@ -3,7 +3,7 @@
 
 Name:           python-theano
 Version:        0.6.0
-Release:        4%{?rctag:.%{rctag}}%{?dist}
+Release:        5%{?rctag:.%{rctag}}%{?dist}
 Summary:        Mathematical expressions involving multidimensional arrays
 
 License:        BSD
@@ -22,6 +22,8 @@ Source4:        badge2.png
 Patch0:         %{name}-doc.patch
 # Unbundle python-six
 Patch1:         %{name}-six.patch
+# Fix a build failure on arm due to an inverted test
+Patch2:         %{name}-arm.patch
 
 BuildArch:      noarch
 
@@ -97,6 +99,7 @@ efficiently.  Theano features:
 %setup -q -n %{pkgname}-%{version}%{?rctag:.%{rctag}} -T -D -a 1
 %patch0
 %patch1
+%patch2
 
 # Don't use non-local images when building documentation
 cp -p %{SOURCE2} %{SOURCE3} %{SOURCE4} doc/images
@@ -190,6 +193,9 @@ chmod a+x $(find %{buildroot} -name \*.py -o -name \*.sh | xargs grep -l '^#!')
 %{python3_sitelib}/*
 
 %changelog
+* Sat Feb 21 2015 Jerry James <loganjerry@gmail.com> - 0.6.0-5
+- Add -arm patch to fix build failure on arm builders due to inverted test
+
 * Sat Feb 21 2015 Jerry James <loganjerry@gmail.com> - 0.6.0-4
 - Drop workaround for fixed bug (bz 1075826)
 - Use license macro
