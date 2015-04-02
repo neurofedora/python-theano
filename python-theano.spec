@@ -2,8 +2,8 @@
 #%%global rctag rc3
 
 Name:           python-theano
-Version:        0.6.0
-Release:        5%{?rctag:.%{rctag}}%{?dist}
+Version:        0.7.0
+Release:        1%{?rctag:.%{rctag}}%{?dist}
 Summary:        Mathematical expressions involving multidimensional arrays
 
 License:        BSD
@@ -22,12 +22,11 @@ Source4:        badge2.png
 Patch0:         %{name}-doc.patch
 # Unbundle python-six
 Patch1:         %{name}-six.patch
-# Fix a build failure on arm due to an inverted test
-Patch2:         %{name}-arm.patch
 
 BuildArch:      noarch
 
 BuildRequires:  atlas-devel
+BuildRequires:  Cython python3-Cython
 BuildRequires:  epydoc
 BuildRequires:  numpy python3-numpy
 BuildRequires:  pydot
@@ -99,7 +98,6 @@ efficiently.  Theano features:
 %setup -q -n %{pkgname}-%{version}%{?rctag:.%{rctag}} -T -D -a 1
 %patch0
 %patch1
-%patch2
 
 # Don't use non-local images when building documentation
 cp -p %{SOURCE2} %{SOURCE3} %{SOURCE4} doc/images
@@ -123,16 +121,17 @@ done
 
 # Prepare for python 3 build
 cp -a . %{py3dir}
+mv %{py3dir} python3
 
 # We don't need to use /usr/bin/env
-for fil in $(grep -FRl /usr/bin/env .); do
-  sed 's,/usr/bin/env[[:blank:]]*python.*,/usr/bin/python2,' $fil > $fil.new
+for fil in $(grep -FRl /usr/bin/env python3); do
+  sed 's,/usr/bin/env[[:blank:]]*python.*,/usr/bin/python3,' $fil > $fil.new
   touch -r $fil $fil.new
   chmod a+x $fil.new
   mv -f $fil.new $fil
 done
-for fil in $(grep -FRl /usr/bin/env %{py3dir}); do
-  sed 's,/usr/bin/env[[:blank:]]*python.*,/usr/bin/python3,' $fil > $fil.new
+for fil in $(grep -FRl /usr/bin/env .); do
+  sed 's,/usr/bin/env[[:blank:]]*python.*,/usr/bin/python2,' $fil > $fil.new
   touch -r $fil $fil.new
   chmod a+x $fil.new
   mv -f $fil.new $fil
@@ -142,11 +141,22 @@ done
 # The python3 build fails with Unicode errors without this
 export LC_ALL=en_US.UTF-8
 
+# Regenerate the Cython files, and fix the numpy interfaces
+cython theano/scan_module/scan_perform.pyx
+pushd python3
+cython3 theano/scan_module/scan_perform.pyx
+popd
+sed -e 's/\(__pyx_v_self\)->descr/PyArray_DESCR(\1)/' \
+    -e 's/\(__pyx_v_arr\)->base = \(.*\);/PyArray_SetBaseObject(\1, \2);/' \
+    -e 's/\(__pyx_v_arr\)->base/PyArray_BASE(\1)/' \
+    -i theano/scan_module/scan_perform.c \
+       python3/theano/scan_module/scan_perform.c
+
 # Python 2 build
 python2 setup.py build
 
 # Python 3 build
-pushd %{py3dir}
+pushd python3
 python3 setup.py build
 popd
 
@@ -165,7 +175,7 @@ export LC_ALL=en_US.UTF-8
 python2 setup.py install -O1 --skip-build --root %{buildroot}
 
 # Install python 3 build
-pushd %{py3dir}
+pushd python3
 python3 setup.py install -O1 --skip-build --root %{buildroot}
 popd
 
@@ -175,8 +185,8 @@ chmod a+x $(find %{buildroot} -name \*.py -o -name \*.sh | xargs grep -l '^#!')
 # Theano's self tests currently fail one test.  Enable this once upstream has
 # fixed the problem.
 #
-#%%check
-#PYTHONPATH=$PWD bin/theano-test
+%check
+PYTHONPATH=$PWD bin/theano-test
 
 %files
 %doc DESCRIPTION.txt HISTORY.txt NEWS.txt README.txt
@@ -193,6 +203,11 @@ chmod a+x $(find %{buildroot} -name \*.py -o -name \*.sh | xargs grep -l '^#!')
 %{python3_sitelib}/*
 
 %changelog
+* Wed Apr  1 2015 Jerry James <loganjerry@gmail.com> - 0.7.0-1
+- New upstream release
+- Drop upstreamed -arm patch
+- Regenerate cython files to fix build failure
+
 * Sat Feb 21 2015 Jerry James <loganjerry@gmail.com> - 0.6.0-5
 - Add -arm patch to fix build failure on arm builders due to inverted test
 

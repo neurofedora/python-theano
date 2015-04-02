@@ -1,5 +1,5 @@
---- ./theano/compat/__init__.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/compat/__init__.py	2014-03-12 20:00:00.000000000 -0600
+--- ./theano/compat/__init__.py.orig	2015-03-26 15:34:26.000000000 -0600
++++ ./theano/compat/__init__.py	2015-03-31 21:00:00.000000000 -0600
 @@ -3,9 +3,9 @@
  """
  
@@ -12,9 +12,9 @@
 +from six.moves import reload_module as reload
  
  if PY3:
- 
---- ./theano/compile/debugmode.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/compile/debugmode.py	2014-03-12 20:00:00.000000000 -0600
+     from operator import truediv as operator_div
+--- ./theano/compile/debugmode.py.orig	2015-03-26 15:34:26.000000000 -0600
++++ ./theano/compile/debugmode.py	2015-03-31 21:00:00.000000000 -0600
 @@ -12,8 +12,7 @@ import numpy
  
  import theano
@@ -22,23 +22,23 @@
 -from theano.compat import get_unbound_function
 -from theano.compat.six import StringIO
 +from six import get_unbound_function, StringIO
- from theano.gof import FunctionGraph,graph, utils, link, ops_with_inner_function
+ from theano.gof import (FunctionGraph, graph, utils, link,
+                         ops_with_inner_function)
  from theano.gof.link import raise_with_op
- from theano.gof.cc import CLinker
---- ./theano/compile/tests/test_module.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/compile/tests/test_module.py	2014-03-12 20:00:00.000000000 -0600
-@@ -721,7 +721,7 @@ def test_pickle_aliased_memory():
-     assert m.y[0,0] == 3.14
+--- ./theano/compile/tests/test_function_module.py.orig	2015-03-26 15:34:26.000000000 -0600
++++ ./theano/compile/tests/test_function_module.py	2015-03-31 21:00:00.000000000 -0600
+@@ -657,7 +657,7 @@ class T_picklefunction(unittest.TestCase
  
-     import logging
--    from theano.compat.six import StringIO
-+    from six import StringIO
+         f = theano.function([x], theano.tensor.dot(x, y))
  
-     sio = StringIO()
-     handler = logging.StreamHandler(sio)
---- ./theano/configparser.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/configparser.py	2014-03-12 20:00:00.000000000 -0600
-@@ -7,7 +7,7 @@ import os
+-        from theano.compat import BytesIO
++        from six import BytesIO
+         fp = BytesIO()
+         p = cPickle.Pickler(fp, 2)
+         p.persistent_id = pers_save
+--- ./theano/configparser.py.orig	2015-03-26 15:34:26.000000000 -0600
++++ ./theano/configparser.py	2015-03-31 21:00:00.000000000 -0600
+@@ -8,7 +8,7 @@ import shlex
  import sys
  import warnings
  
@@ -47,8 +47,8 @@
  
  import theano
  from theano.compat import configparser as ConfigParser
---- ./theano/gof/cc.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/gof/cc.py	2014-03-12 20:00:00.000000000 -0600
+--- ./theano/gof/cc.py.orig	2015-03-26 15:34:26.000000000 -0600
++++ ./theano/gof/cc.py	2015-03-31 21:00:00.000000000 -0600
 @@ -10,8 +10,7 @@ from itertools import izip
  
  import numpy
@@ -56,36 +56,36 @@
 -from theano.compat import PY3
 -from theano.compat.six import StringIO
 +from six import PY3, StringIO
+ from theano.gof.utils import MethodNotDefined
  
  if PY3:
-     import hashlib
---- ./theano/gof/cmodule.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/gof/cmodule.py	2014-03-12 20:00:00.000000000 -0600
+--- ./theano/gof/cmodule.py.orig	2015-03-26 15:34:26.000000000 -0600
++++ ./theano/gof/cmodule.py	2015-03-31 21:00:00.000000000 -0600
 @@ -24,8 +24,8 @@ except ImportError:
  import numpy.distutils  # TODO: TensorType should handle this
  
  import theano
 -from theano.compat import any, PY3, next, decode, decode_iter
--from theano.compat.six import BytesIO, StringIO
-+from theano.compat import any, next, decode, decode_iter
-+from six import PY3, BytesIO, StringIO
+-from theano.compat.six import b, BytesIO, StringIO
++from theano.compat import any, decode, decode_iter
++from six import PY3, next, b, BytesIO, StringIO
  from theano.gof.utils import flatten
  from theano.configparser import config
  from theano.gof.cc import hash_from_code
---- ./theano/gof/optdb.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/gof/optdb.py	2014-03-12 20:00:00.000000000 -0600
-@@ -3,7 +3,7 @@ import sys
- from theano.gof.python25 import DefaultOrderedDict
+--- ./theano/gof/optdb.py.orig	2015-03-26 15:34:26.000000000 -0600
++++ ./theano/gof/optdb.py	2015-03-31 21:00:00.000000000 -0600
+@@ -4,7 +4,7 @@ import numpy
  
- import numpy
+ from theano.compat.python2x import DefaultOrderedDict
+ from theano.misc.ordered_set import OrderedSet
 -from theano.compat.six import StringIO
 +from six import StringIO
  from theano.gof import opt
  from theano.configparser import AddConfigVar, FloatParam
  from theano import config
---- ./theano/gof/opt.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/gof/opt.py	2014-03-12 20:00:00.000000000 -0600
-@@ -296,7 +296,7 @@ class SeqOptimizer(Optimizer, list):
+--- ./theano/gof/opt.py.orig	2015-03-26 15:34:26.000000000 -0600
++++ ./theano/gof/opt.py	2015-03-31 21:00:00.000000000 -0600
+@@ -308,7 +308,7 @@ class SeqOptimizer(Optimizer, list):
                  new_sub_profile.append(None)
  
          # merge not common opt
@@ -94,8 +94,19 @@
          for l in set(prof1[0]).symmetric_difference(set(prof2[0])):
              #The set trick above only work for the same object optimization
              #It don't work for equivalent optimization.
---- ./theano/misc/pkl_utils.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/misc/pkl_utils.py	2014-03-12 20:00:00.000000000 -0600
+--- ./theano/gof/type.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/gof/type.py	2015-03-31 21:00:00.000000000 -0600
+@@ -2,7 +2,7 @@
+ 
+ __docformat__ = "restructuredtext en"
+ 
+-from theano.compat import PY3
++from six import PY3
+ 
+ from theano.gof import utils
+ from theano.gof.utils import MethodNotDefined, object2
+--- ./theano/misc/pkl_utils.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/misc/pkl_utils.py	2015-03-31 21:00:00.000000000 -0600
 @@ -13,8 +13,7 @@ __license__ = "3-clause BSD"
  import pickle
  import sys
@@ -106,31 +117,31 @@
  
  
  sys.setrecursionlimit(3000)
---- ./theano/printing.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/printing.py	2014-03-12 20:00:00.000000000 -0600
-@@ -25,7 +25,7 @@ except ImportError:
+--- ./theano/printing.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/printing.py	2015-03-31 21:00:00.000000000 -0600
+@@ -26,7 +26,7 @@ except ImportError:
  import theano
  from theano import gof
  from theano import config
 -from theano.compat.six import StringIO
 +from six import StringIO
  from theano.gof import Op, Apply
- from theano.gof.python25 import any
  from theano.compile import Function, debugmode
---- ./theano/sandbox/cuda/basic_ops.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/sandbox/cuda/basic_ops.py	2014-03-12 20:00:00.000000000 -0600
-@@ -7,7 +7,7 @@ import numpy
- import theano
+ from theano.compile.profilemode import ProfileMode
+--- ./theano/sandbox/cuda/basic_ops.py.orig	2015-03-31 20:00:00.000000000 -0600
++++ ./theano/sandbox/cuda/basic_ops.py	2015-03-31 21:00:00.000000000 -0600
+@@ -8,7 +8,7 @@ import theano
+ 
  from theano import gof, Type, Apply
  from theano import tensor, scalar, config
 -from theano.compat.six import StringIO
 +from six import StringIO
+ from theano.gradient import grad_undefined
  from theano.scalar import Scalar
- scal = scalar # somewhere scalar gets reassigned to be a function
  
---- ./theano/sandbox/cuda/blas.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/sandbox/cuda/blas.py	2014-03-12 20:00:00.000000000 -0600
-@@ -4,7 +4,7 @@ import os
+--- ./theano/sandbox/cuda/blas.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/sandbox/cuda/blas.py	2015-03-31 21:00:00.000000000 -0600
+@@ -6,7 +6,7 @@ _logger = logging.getLogger(__name__)
  import theano
  from theano import Apply
  from theano import tensor
@@ -138,30 +149,63 @@
 +from six import StringIO
  from theano.sandbox.cuda.type import CudaNdarrayType
  from theano.sandbox.cuda import GpuOp
- 
---- ./theano/sandbox/cuda/elemwise.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/sandbox/cuda/elemwise.py	2014-03-12 20:00:00.000000000 -0600
+ from theano.sandbox.cuda.basic_ops import (as_cuda_ndarray_variable,
+--- ./theano/sandbox/cuda/elemwise.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/sandbox/cuda/elemwise.py	2015-03-31 21:00:00.000000000 -0600
 @@ -13,7 +13,7 @@ import numpy
  
  from theano.scalar.basic import upgrade_to_float_no_complex, complex_types
  from theano.scalar.basic_scipy import Erfinv
 -from theano.compat.six import StringIO
 +from six import StringIO
- from theano import Apply, Constant, Op, Type, Variable
- from theano import gof, scalar, tensor
+ from theano import Apply
+ from theano import gof, scalar
  
---- ./theano/sandbox/cuda/nnet.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/sandbox/cuda/nnet.py	2014-03-12 20:00:00.000000000 -0600
+--- ./theano/sandbox/cuda/__init__.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/sandbox/cuda/__init__.py	2015-03-31 21:00:00.000000000 -0600
+@@ -7,7 +7,7 @@ import stat
+ import sys
+ 
+ import theano
+-from theano.compat import get_unbound_function
++from six import get_unbound_function
+ from theano.compile import optdb
+ from theano.gof import EquilibriumDB, SequenceDB
+ from theano.gof.cmodule import get_lib_extension
+--- ./theano/sandbox/cuda/nnet.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/sandbox/cuda/nnet.py	2015-03-31 21:00:00.000000000 -0600
 @@ -1,5 +1,5 @@
  from theano import Op, Apply
 -from theano.compat.six import StringIO
 +from six import StringIO
  
  from theano.sandbox.cuda import GpuOp
+ from theano.sandbox.cuda.basic_ops import as_cuda_ndarray_variable
+--- ./theano/sandbox/cuda/rng_curand.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/sandbox/cuda/rng_curand.py	2015-03-31 21:00:00.000000000 -0600
+@@ -9,7 +9,7 @@ __contact__ = "theano-dev@googlegroups.c
  
---- ./theano/sandbox/cuda/type.py.orig	2013-12-03 10:47:23.000000000 -0700
-+++ ./theano/sandbox/cuda/type.py	2014-03-12 20:00:00.000000000 -0600
-@@ -9,7 +9,7 @@ import theano
+ import numpy
+ import theano.gof
+-from theano.compat import PY3
++from six import PY3
+ from theano.compat.python2x import all
+ from theano.sandbox.cuda import CudaNdarrayType, GpuOp
+ from theano.tensor import (get_vector_length, cast, opt)
+--- ./theano/sandbox/cuda/tests/test_dnn.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/sandbox/cuda/tests/test_dnn.py	2015-03-31 21:00:00.000000000 -0600
+@@ -5,7 +5,7 @@ import numpy
+ from itertools import product
+ 
+ import theano
+-from theano.compat.six import StringIO
++from six import StringIO
+ from theano.compat.python2x import any
+ import theano.tensor as T
+ import theano.tests.unittest_tools as utt
+--- ./theano/sandbox/cuda/type.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/sandbox/cuda/type.py	2015-03-31 21:00:00.000000000 -0600
+@@ -10,7 +10,7 @@ import theano
  from theano import Type, Variable
  from theano import tensor, config
  from theano import scalar as scal
@@ -170,20 +214,75 @@
  
  try:
      # We must do those import to be able to create the full doc when nvcc
---- ./theano/tensor/opt.py.orig	2013-12-03 10:47:28.000000000 -0700
-+++ ./theano/tensor/opt.py	2014-03-12 20:00:00.000000000 -0600
-@@ -37,7 +37,7 @@ from theano.gof.opt import (Optimizer, p
+--- ./theano/sandbox/gpuarray/basic_ops.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/sandbox/gpuarray/basic_ops.py	2015-03-31 21:00:00.000000000 -0600
+@@ -12,7 +12,7 @@ from theano.tensor.basic import Alloc, J
+ from theano.gof import HideC
+ from theano.compat.python2x import any
+ from theano.gof.utils import MethodNotDefined
+-from theano.compat import PY3
++from six import PY3
+ 
+ try:
+     import pygpu
+--- ./theano/sandbox/gpuarray/nnet.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/sandbox/gpuarray/nnet.py	2015-03-31 21:00:00.000000000 -0600
+@@ -1,7 +1,7 @@
+ import numpy
+ 
+ from theano import Op, Apply, config
+-from theano.compat.six import StringIO
++from six import StringIO
+ from theano.sandbox.gpuarray.comp import NVCC_compiler
+ 
+ 
+--- ./theano/scalar/basic.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/scalar/basic.py	2015-03-31 21:00:00.000000000 -0600
+@@ -21,7 +21,7 @@ from textwrap import dedent
+ import numpy
+ 
+ import theano
+-from theano.compat import PY3
++from six import PY3
+ from theano import gof, printing
+ from theano.gof import (Op, utils, Variable, Constant, Type, Apply,
+                         FunctionGraph)
+--- ./theano/scan_module/tests/test_scan.py.orig	2015-03-26 15:34:28.000000000 -0600
++++ ./theano/scan_module/tests/test_scan.py	2015-03-31 21:00:00.000000000 -0600
+@@ -23,7 +23,7 @@ from theano.tests import unittest_tools
+ import theano.scalar.sharedvar
+ from theano.scan_module.scan_op import Scan
+ from theano.compat.python2x import OrderedDict
+-from theano.compat import PY3
++from six import PY3
+ 
+ from numpy.testing.noseclasses import KnownFailureTest
+ 
+--- ./theano/sparse/sandbox/test_sp.py.orig	2015-03-26 15:34:28.000000000 -0600
++++ ./theano/sparse/sandbox/test_sp.py	2015-03-31 21:00:00.000000000 -0600
+@@ -15,7 +15,7 @@ import numpy
+ 
+ from theano import function, tensor
+ import theano
+-from theano.compat import next
++from six import next
+ from theano.sparse.sandbox import sp
+ from theano.sparse.tests.test_basic import random_lil
+ from theano.tests import unittest_tools as utt
+--- ./theano/tensor/opt.py.orig	2015-03-26 15:34:28.000000000 -0600
++++ ./theano/tensor/opt.py	2015-03-31 21:00:00.000000000 -0600
+@@ -46,7 +46,7 @@ from theano.gof.opt import (Optimizer, p
  from theano.gof.opt import merge_optimizer
- from theano.gof import toolbox, DestroyHandler
+ from theano.gof import toolbox
  from theano.tensor.basic import get_scalar_constant_value, ShapeError, NotScalarConstantError
 -from theano.compat.six import StringIO
 +from six import StringIO
  
  theano.configparser.AddConfigVar('on_shape_error',
                                   "warn: print a warning and use the default"
---- ./theano/tensor/tests/test_basic.py.orig	2013-12-03 10:47:28.000000000 -0700
-+++ ./theano/tensor/tests/test_basic.py	2014-03-12 20:00:00.000000000 -0600
-@@ -18,8 +18,8 @@ from numpy.testing import dec, assert_ar
+--- ./theano/tensor/tests/test_basic.py.orig	2015-03-26 15:34:28.000000000 -0600
++++ ./theano/tensor/tests/test_basic.py	2015-03-31 21:00:00.000000000 -0600
+@@ -19,8 +19,8 @@ from numpy.testing import dec, assert_ar
  from numpy.testing.noseclasses import KnownFailureTest
  
  import theano
@@ -194,20 +293,9 @@
  from theano import compile, config, function, gof, tensor, shared
  from theano.compile import DeepCopyOp
  from theano.compile.mode import get_default_mode
---- ./theano/tensor/tests/test_naacl09.py.orig	2013-12-03 10:47:28.000000000 -0700
-+++ ./theano/tensor/tests/test_naacl09.py	2014-03-12 20:00:00.000000000 -0600
-@@ -652,7 +652,7 @@ def profile_main():
-     # We've renamed our original main() above to real_main()
-     import cProfile
-     import pstats
--    from theano.compat.six import StringIO
-+    from six import StringIO
-     prof = cProfile.Profile()
-     prof = prof.runctx("real_main()", globals(), locals())
-     stream = StringIO()
---- ./theano/tensor/tests/test_opt.py.orig	2013-12-03 10:47:28.000000000 -0700
-+++ ./theano/tensor/tests/test_opt.py	2014-03-12 20:00:00.000000000 -0600
-@@ -15,7 +15,7 @@ from numpy.testing.noseclasses import Kn
+--- ./theano/tensor/tests/test_opt.py.orig	2015-03-26 15:34:28.000000000 -0600
++++ ./theano/tensor/tests/test_opt.py	2015-03-31 21:00:00.000000000 -0600
+@@ -16,7 +16,7 @@ from numpy.testing.noseclasses import Kn
  
  import theano
  import theano.scalar as scal
@@ -216,19 +304,31 @@
  from theano import compile
  from theano.compile import deep_copy_op, DeepCopyOp
  from theano import config
---- ./theano/tensor/tests/test_subtensor.py.orig	2013-12-03 10:47:28.000000000 -0700
-+++ ./theano/tensor/tests/test_subtensor.py	2014-03-12 20:00:00.000000000 -0600
-@@ -8,7 +8,7 @@ import numpy
+--- ./theano/tensor/tests/test_subtensor.py.orig	2015-03-26 15:34:28.000000000 -0600
++++ ./theano/tensor/tests/test_subtensor.py	2015-03-31 21:00:00.000000000 -0600
+@@ -9,7 +9,7 @@ import numpy
  
  import theano
  from theano.compat import exc_message
 -from theano.compat.six import StringIO
 +from six import StringIO
- from theano.gof.python25 import any
+ from theano.compat.python2x import any
  from theano.compile import DeepCopyOp
  from theano import config
---- ./theano/tests/test_determinism.py.orig	2013-12-03 10:47:28.000000000 -0700
-+++ ./theano/tests/test_determinism.py	2014-03-12 20:00:00.000000000 -0600
+--- ./theano/tensor/var.py.orig	2015-03-26 15:34:28.000000000 -0600
++++ ./theano/tensor/var.py	2015-03-31 21:00:00.000000000 -0600
+@@ -7,7 +7,8 @@ import warnings
+ import numpy
+ 
+ import theano
+-from theano.compat import all, PY3
++from six import PY3
++from theano.compat import all
+ from theano.scalar import ComplexError, IntegerDivisionError
+ from theano.gof import Constant, Variable
+ from theano.gof.utils import hashtype
+--- ./theano/tests/test_determinism.py.orig	2015-03-26 15:34:28.000000000 -0600
++++ ./theano/tests/test_determinism.py	2015-03-31 21:00:00.000000000 -0600
 @@ -9,7 +9,7 @@ from nose.plugins.skip import SkipTest
  
  from theano import config
@@ -238,8 +338,8 @@
  
  def sharedX(x, name=None):
      x = np.cast[config.floatX](x)
---- ./theano/tests/test_printing.py.orig	2013-12-03 10:47:28.000000000 -0700
-+++ ./theano/tests/test_printing.py	2014-03-12 20:00:00.000000000 -0600
+--- ./theano/tests/test_printing.py.orig	2015-03-26 15:34:28.000000000 -0600
++++ ./theano/tests/test_printing.py	2015-03-31 21:00:00.000000000 -0600
 @@ -9,7 +9,7 @@ import theano
  import theano.tensor as tensor
  
@@ -247,5 +347,5 @@
 -from theano.compat.six import StringIO
 +from six import StringIO
  
+ 
  def test_pydotprint_cond_highlight():
-     """

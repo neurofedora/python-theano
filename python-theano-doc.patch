@@ -1,17 +1,6 @@
---- ./MANIFEST.in.orig	2013-12-03 10:47:16.000000000 -0700
-+++ ./MANIFEST.in	2013-12-07 13:00:00.000000000 -0700
-@@ -4,7 +4,7 @@ global-include *.cu
- global-include *.cuh
- global-include *.sh
- global-include *.pkl
--recursive-include docs
-+recursive-include docs *
- include bin/theano-cache
- include bin/theano-nose
- include bin/theano-test
---- ./doc/tutorial/using_gpu.txt.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./doc/tutorial/using_gpu.txt	2013-12-07 13:00:00.000000000 -0700
-@@ -561,7 +561,7 @@ Modify and execute to work for a matrix
+--- ./doc/tutorial/using_gpu.txt.orig	2015-03-26 15:34:26.000000000 -0600
++++ ./doc/tutorial/using_gpu.txt	2015-03-31 20:00:00.000000000 -0600
+@@ -670,7 +670,7 @@ Modify and execute to work for a matrix
  
  
  
@@ -20,9 +9,20 @@
  
  **Example: Theano + PyCUDA**
  
---- ./theano/sandbox/cuda/basic_ops.py.orig	2013-12-03 10:47:22.000000000 -0700
-+++ ./theano/sandbox/cuda/basic_ops.py	2013-12-07 13:00:00.000000000 -0700
-@@ -1168,8 +1168,10 @@ class GpuCAReduce(GpuOp):
+--- ./MANIFEST.in.orig	2015-03-26 15:34:24.000000000 -0600
++++ ./MANIFEST.in	2015-03-31 20:00:00.000000000 -0600
+@@ -5,7 +5,7 @@ global-include *.cuh
+ global-include *.h
+ global-include *.sh
+ global-include *.pkl
+-recursive-include docs
++recursive-include docs *
+ include bin/theano-cache
+ include bin/theano-nose
+ include bin/theano-test
+--- ./theano/sandbox/cuda/basic_ops.py.orig	2015-03-26 15:34:27.000000000 -0600
++++ ./theano/sandbox/cuda/basic_ops.py	2015-03-31 20:00:00.000000000 -0600
+@@ -1239,8 +1239,10 @@ class GpuCAReduce(GpuOp):
  
      def c_code_reduce_01X(self, sio, node, name, x, z, fail, N):
          """
