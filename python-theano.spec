@@ -3,7 +3,7 @@
 
 Name:           python-theano
 Version:        0.7.0
-Release:        1%{?rctag:.%{rctag}}%{?dist}
+Release:        1%{?rctag:.%{rctag}}%{?dist}.1
 Summary:        Mathematical expressions involving multidimensional arrays
 
 License:        BSD
@@ -203,6 +203,9 @@ PYTHONPATH=$PWD bin/theano-test
 %{python3_sitelib}/*
 
 %changelog
+* Thu Jun 18 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.7.0-1.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Wed Apr  1 2015 Jerry James <loganjerry@gmail.com> - 0.7.0-1
 - New upstream release
 - Drop upstreamed -arm patch
