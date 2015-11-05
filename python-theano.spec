@@ -3,7 +3,7 @@
 
 Name:           python-theano
 Version:        0.7.0
-Release:        1%{?rctag:.%{rctag}}%{?dist}.1
+Release:        2%{?rctag:.%{rctag}}%{?dist}.1
 Summary:        Mathematical expressions involving multidimensional arrays
 
 License:        BSD
@@ -182,6 +182,10 @@ popd
 # Restore executable permission on the scripts
 chmod a+x $(find %{buildroot} -name \*.py -o -name \*.sh | xargs grep -l '^#!')
 
+# Shebang in a python module -- Looking at the module, upstream probably should
+# remove the shebang (or possibly even remove the file from the tarball
+sed -i s'!/usr/bin/python$!/usr/bin/python3!' %{buildroot}%{python3_sitelib}/theano/sandbox/test_neighbourhoods.py
+
 # Theano's self tests currently fail one test.  Enable this once upstream has
 # fixed the problem.
 #
@@ -203,6 +207,9 @@ PYTHONPATH=$PWD bin/theano-test
 %{python3_sitelib}/*
 
 %changelog
+* Wed Nov  4 2015 Toshio Kuratomi <toshio@fedoraproject.org> - 0.7.0-2}.1
+- Fix python3 package requiring python2.
+
 * Thu Jun 18 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.7.0-1.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
