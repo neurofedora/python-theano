@@ -3,7 +3,7 @@
 
 Name:           python-theano
 Version:        0.7.0
-Release:        2%{?rctag:.%{rctag}}%{?dist}.1
+Release:        2%{?rctag:.%{rctag}}%{?dist}.2
 Summary:        Mathematical expressions involving multidimensional arrays
 
 License:        BSD
@@ -207,6 +207,9 @@ PYTHONPATH=$PWD bin/theano-test
 %{python3_sitelib}/*
 
 %changelog
+* Tue Nov 10 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.7.0-2.2
+- Rebuilt for https://fedoraproject.org/wiki/Changes/python3.5
+
 * Wed Nov  4 2015 Toshio Kuratomi <toshio@fedoraproject.org> - 0.7.0-2}.1
 - Fix python3 package requiring python2.
 
