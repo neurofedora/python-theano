@@ -1,16 +1,14 @@
 %global pkgname Theano
-#%%global rctag rc3
+%global rctag a1
 
 Name:           python-theano
-Version:        0.7.0
-Release:        2%{?rctag:.%{rctag}}%{?dist}.2
+Version:        0.7.1
+Release:        0.1%{?rctag:.%{rctag}}%{?dist}
 Summary:        Mathematical expressions involving multidimensional arrays
 
 License:        BSD
 URL:            http://deeplearning.net/software/theano/
-Source0:        https://pypi.python.org/packages/source/T/%{pkgname}/%{pkgname}-%{version}%{?rctag:.%{rctag}}.tar.gz
-# Files from git that were omitted from the release
-Source1:        %{pkgname}-missing.tar.xz
+Source0:        https://github.com/Theano/Theano/archive/rel-%{version}%{?rctag:%{rctag}}/%{pkgname}-%{version}%{?rctag:%{rctag}}.tar.gz
 # Images used when building documentation
 Source2:        https://secure.travis-ci.org/Theano/Theano.png
 Source3:        https://pypip.in/v/Theano/badge.png
@@ -20,8 +18,9 @@ Source4:        badge2.png
 
 # Fix some documentation bugs
 Patch0:         %{name}-doc.patch
-# Unbundle python-six
-Patch1:         %{name}-six.patch
+
+# https://github.com/Theano/Theano/commit/bdcb752aa9abcaf8a7fb1e8e56d981e9bc151058
+Patch1:         bdcb752aa9abcaf8a7fb1e8e56d981e9bc151058.patch
 
 BuildArch:      noarch
 
@@ -94,10 +93,9 @@ efficiently.  Theano features:
   types of mistake.
 
 %prep
-%setup -q -n %{pkgname}-%{version}%{?rctag:.%{rctag}}
-%setup -q -n %{pkgname}-%{version}%{?rctag:.%{rctag}} -T -D -a 1
+%setup -q -n %{pkgname}-rel-%{version}%{?rctag:%{rctag}}
 %patch0
-%patch1
+%patch1 -p1
 
 # Don't use non-local images when building documentation
 cp -p %{SOURCE2} %{SOURCE3} %{SOURCE4} doc/images
@@ -106,18 +104,8 @@ sed -e 's,https://.*/Theano\.png?branch=master,images/Theano.png,' \
     -e 's,https://pypip\.in/d/Theano/badge\.png,images/badge2.png,' \
     -i doc/index.txt doc/install.txt
 
-# Remove the packaged egg
-rm -fr %{pkgname}.egg-info
-
 # Remove bundled python-six
 rm -f theano/compat/six.py
-
-# Remove the shebang from a non-executable Python file
-for fil in theano/sandbox/neighbourhoods.py; do
-  sed '1d' $fil > $fil.new
-  touch -r $fil $fil.new
-  mv -f $fil.new $fil
-done
 
 # Prepare for python 3 build
 cp -a . %{py3dir}
@@ -207,6 +195,9 @@ PYTHONPATH=$PWD bin/theano-test
 %{python3_sitelib}/*
 
 %changelog
+* Thu Nov 12 2015 Igor Gnatenko <i.gnatenko.brain@gmail.com> - 0.7.1-0.1.a1
+- Update to 0.7.1a1
+
 * Tue Nov 10 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.7.0-2.2
 - Rebuilt for https://fedoraproject.org/wiki/Changes/python3.5
 
